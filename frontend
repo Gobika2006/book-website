@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Online Book Catalog</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #333;
+    }
+    #book-list {
+      margin-top: 20px;
+    }
+    .book {
+      padding: 10px;
+      background-color: white;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    }
+    form input, form button {
+      margin-top: 10px;
+      padding: 8px;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📚 Online Book Catalog</h1>
+
+  <form id="book-form">
+    <input type="text" id="title" placeholder="Book Title" required><br>
+    <input type="text" id="author" placeholder="Author" required><br>
+    <button type="submit">Add Book</button>
+  </form>
+
+  <div id="book-list"></div>
+
+  <script>
+    const apiURL = 'http://<BACKEND-SERVICE-URL>/books'; // Replace with actual backend URL or ingress path
+
+    async function fetchBooks() {
+      const response = await fetch(apiURL);
+      const books = await response.json();
+      const bookList = document.getElementById('book-list');
+      bookList.innerHTML = '';
+      books.forEach(book => {
+        const div = document.createElement('div');
+        div.className = 'book';
+        div.innerHTML = <strong>${book.title}</strong> by ${book.author};
+        bookList.appendChild(div);
+      });
+    }
+
+    document.getElementById('book-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const author = document.getElementById('author').value;
+
+      await fetch(apiURL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ title, author })
+      });
+
+      document.getElementById('title').value = '';
+      document.getElementById('author').value = '';
+      fetchBooks();
+    });
+
+    // Initial load
+    fetchBooks();
+  </script>
+</body>
+</html>
